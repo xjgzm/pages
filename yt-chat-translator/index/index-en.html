@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/png" href="./assets/icon.png" />
+<title>YouTube Live Chat Translator</title>
+<meta name="description" content="A Chrome extension that automatically translates live chat messages in YouTube Live into your preferred language." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #0a0c10;
+    --panel: #12151b;
+    --panel-2: #171b23;
+    --line: #232833;
+    --ink: #e9edf3;
+    --mist: #8b93a3;
+    --signal: #ff2d4e;
+    --signal-dim: #ff2d4e33;
+    --tier-teal: #2dd4aa;
+    --tier-gold: #ffc857;
+    --tier-blue: #4c8dff;
+    --font-display: 'Space Grotesk', 'Noto Sans JP', sans-serif;
+    --font-body: 'Inter', 'Noto Sans JP', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--void);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(600px 400px at 85% -5%, #ff2d4e14, transparent),
+      radial-gradient(500px 350px at 5% 15%, #2dd4aa10, transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  a { color: inherit; }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---- Nav ---- */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+    background: #0a0c10cc;
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.01em;
+  }
+  .brand-mark {
+    width: 30px;
+    height: 30px;
+    border-radius: 0;
+    background: transparent;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .lang-toggle {
+    display: flex;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+  .lang-toggle a {
+    background: transparent;
+    border: none;
+    color: var(--mist);
+    padding: 6px 11px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    text-decoration: none;
+  }
+  .lang-toggle a.active {
+    background: var(--panel-2);
+    color: var(--ink);
+  }
+  .gh-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--mist);
+    text-decoration: none;
+    border: 1px solid var(--line);
+    padding: 7px 12px;
+    border-radius: 7px;
+    transition: border-color .15s, color .15s;
+  }
+  .gh-link:hover { border-color: #3a4150; color: var(--ink); }
+
+  /* ---- Hero ---- */
+  .hero {
+    padding: 88px 0 96px;
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 56px;
+    align-items: center;
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--tier-teal);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--tier-teal);
+    box-shadow: 0 0 8px var(--tier-teal);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: 44px;
+    line-height: 1.18;
+    font-weight: 700;
+    margin: 0 0 22px;
+    letter-spacing: -0.01em;
+  }
+  h1 .accent { color: var(--signal); }
+  .hero-sub {
+    font-size: 16.5px;
+    color: var(--mist);
+    max-width: 46ch;
+    margin: 0 0 32px;
+  }
+  .hero-ctas {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .btn {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14.5px;
+    padding: 12px 20px;
+    border-radius: 9px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform .15s, box-shadow .15s, background .15s;
+    border: 1px solid transparent;
+  }
+  .btn-primary {
+    background: var(--signal);
+    color: #fff;
+    box-shadow: 0 0 0 0 var(--signal-dim);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px -8px #ff2d4e66; }
+  .btn-secondary {
+    background: var(--panel);
+    color: var(--ink);
+    border-color: var(--line);
+  }
+  .btn-secondary:hover { border-color: #3a4150; transform: translateY(-1px); }
+
+  .badges {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--mist);
+  }
+  .badges span { display: flex; align-items: center; gap: 6px; }
+  .badges span::before {
+    content: "";
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--mist);
+  }
+
+  /* ---- Mock chat panel (signature element) ---- */
+  .mock-panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 30px 70px -30px #000000cc;
+  }
+  .mock-panel-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--mist);
+  }
+  .mock-dot { width: 8px; height: 8px; border-radius: 50%; background: #3a4150; }
+  .mock-row {
+    display: flex;
+    gap: 10px;
+    padding: 9px 8px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    opacity: 0;
+    transform: translateY(8px);
+    animation: rowIn .5s ease forwards;
+  }
+  .mock-row:nth-child(2) { animation-delay: .1s; }
+  .mock-row:nth-child(3) { animation-delay: .3s; }
+  .mock-row:nth-child(4) { animation-delay: .5s; }
+  .mock-row:nth-child(5) { animation-delay: .7s; }
+  @keyframes rowIn { to { opacity: 1; transform: translateY(0); } }
+
+  .mock-avatar {
+    width: 26px; height: 26px; border-radius: 50%;
+    flex-shrink: 0;
+    background: linear-gradient(140deg, #3a4150, #1c202a);
+  }
+  .mock-body { flex: 1; min-width: 0; }
+  .mock-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mist);
+    margin-bottom: 2px;
+  }
+  .mock-text { font-size: 13.5px; color: var(--ink); }
+  .mock-translation {
+    margin-top: 5px;
+    padding: 4px 8px;
+    border-left: 2px solid var(--signal);
+    background: #ff2d4e0f;
+    font-size: 12.5px;
+    font-style: italic;
+    color: #c7cbd4;
+    border-radius: 3px;
+  }
+  .mock-translation:empty { display: none; }
+  .mock-row.superchat {
+    background: var(--tier-teal);
+    border-radius: 10px;
+    padding: 10px 10px;
+  }
+  .mock-row.superchat .mock-name { color: #063d31; }
+  .mock-row.superchat .mock-text { color: #06251e; font-weight: 500; }
+  .mock-row.superchat .mock-translation {
+    background: #00000022;
+    border-left: 2px solid #06251e;
+    color: #06251e;
+    font-style: normal;
+    font-weight: 500;
+  }
+  .mock-row.gold .mock-avatar { background: linear-gradient(140deg, var(--tier-gold), #a9791b); }
+
+  /* ---- Section shared ---- */
+  section { padding: 88px 0; border-top: 1px solid var(--line); }
+  .section-head { max-width: 60ch; margin-bottom: 48px; }
+  .section-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--mist);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 700;
+    margin: 0 0 12px;
+    letter-spacing: -0.01em;
+  }
+  .section-desc { color: var(--mist); font-size: 15.5px; margin: 0; }
+
+  /* ---- Features ---- */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+  }
+  .feature {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px 26px 26px;
+    grid-column: span 2;
+    min-height: 202px;
+    transition: transform .2s ease, border-color .2s ease, background .2s ease;
+  }
+  .feature:nth-child(4), .feature:nth-child(5) { grid-column: span 3; }
+  .feature:hover { background: var(--panel-2); border-color: #3a4353; transform: translateY(-3px); }
+  }
+  .feature-icon {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    background: var(--panel-2);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+    font-size: 16px;
+  }
+  .feature h3 {
+    font-family: var(--font-display);
+    font-size: 15.5px;
+    font-weight: 600;
+    margin: 0 0 9px;
+  }
+  .feature p { max-width: 42ch; font-size: 13.5px; color: var(--mist); margin: 0; line-height: 1.6; }
+
+  /* ---- How it works ---- */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  }
+  .step { position: relative; padding-left: 46px; }
+  .step-num {
+    position: absolute; left: 0; top: 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--void);
+    background: var(--tier-teal);
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 500;
+  }
+  .step h3 {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    margin: 4px 0 6px;
+  }
+  .step p { font-size: 13.5px; color: var(--mist); margin: 0; }
+
+  /* ---- Engines ---- */
+  .engines {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .engine-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 22px;
+  }
+  .engine-card.recommended { border-color: #2dd4aa55; }
+  .engine-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .engine-name { font-family: var(--font-display); font-weight: 600; font-size: 15.5px; }
+  .engine-tag {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    padding: 3px 7px;
+    border-radius: 5px;
+    background: var(--tier-teal);
+    color: #06251e;
+    font-weight: 500;
+  }
+  .engine-desc { font-size: 13px; color: var(--mist); margin: 0; }
+
+  /* ---- Footer ---- */
+  footer { padding: 48px 0 60px; }
+  .footer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 22px;
+  }
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-size: 13.5px;
+  }
+  .footer-links a { color: var(--mist); text-decoration: none; }
+  .footer-links a:hover { color: var(--ink); }
+  .footer-fine {
+    font-size: 12.5px;
+    color: #5b6272;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  @media (max-width: 1100px) and (min-width: 861px) {
+    .hero { gap: 36px; }
+    h1 { font-size: 38px; }
+  }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; padding-top: 56px; }
+    h1 { font-size: 32px; }
+    .features { grid-template-columns: 1fr; gap: 10px; }
+    .feature, .feature:nth-child(4), .feature:nth-child(5) { grid-column: auto; min-height: 0; }
+    .steps { grid-template-columns: 1fr; gap: 24px; }
+    .engines { grid-template-columns: 1fr; }
+    .nav-actions { gap: 10px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mock-row { animation: none; opacity: 1; transform: none; }
+    html { scroll-behavior: auto; }
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--tier-teal);
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">
+      <img class="brand-mark" src="./assets/icon.png" alt="" width="26" height="26" />
+      <span>YT Chat Translator</span>
+    </div>
+    <div class="nav-actions">
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <a href="index-ja.html">JA</a>
+        <a href="index-en.html" class="active">EN</a>
+      </div>
+      <a class="gh-link" href="https://github.com/xjgzm/yt-chat-translator" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap hero">
+    <div>
+      <div class="eyebrow">Chrome Extension &middot; Free</div>
+      <h1>Take the <span class="accent">language barrier</span><br />out of live chat.</h1>
+      <p class="hero-sub">
+        Automatically translates YouTube Live chat messages into your selected language, right below the original comment — so you always know what's being said.
+      </p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="https://github.com/xjgzm/yt-chat-translator" target="_blank" rel="noopener">View on GitHub</a>
+        <a class="btn btn-secondary" href="#how">See how it works</a>
+      </div>
+      <div class="badges">
+        <span>MIT license</span>
+        <span>Manifest V3</span>
+        <span>No API key to get started</span>
+      </div>
+    </div>
+
+    <div class="mock-panel" aria-hidden="true">
+      <div class="mock-panel-head">
+        <span class="mock-dot"></span>
+        <span>Live chat &middot; Translating to: English</span>
+      </div>
+
+      <div class="mock-row">
+        <div class="mock-avatar"></div>
+        <div class="mock-body">
+          <div class="mock-name">@mika_streams</div>
+          <div class="mock-text">配信お疲れ様です！</div>
+          <div class="mock-translation">Thanks for the stream!</div>
+        </div>
+      </div>
+
+      <div class="mock-row gold">
+        <div class="mock-avatar"></div>
+        <div class="mock-body">
+          <div class="mock-name">@daniel_us</div>
+          <div class="mock-text">this boss fight is insane, nice reflexes</div>
+        </div>
+      </div>
+
+      <div class="mock-row">
+        <div class="mock-avatar"></div>
+        <div class="mock-body">
+          <div class="mock-name">@lee_hyun</div>
+          <div class="mock-text">여기서 오른쪽으로 가야 해요</div>
+          <div class="mock-translation">You should go right from here.</div>
+        </div>
+      </div>
+
+      <div class="mock-row superchat">
+        <div class="mock-avatar"></div>
+        <div class="mock-body">
+          <div class="mock-name">@camille_fr &middot; &euro;5.00</div>
+          <div class="mock-text">bonne chance pour le reste du stream !</div>
+          <div class="mock-translation">Good luck for the rest of the stream!</div>
+        </div>
+      </div>
+
+      <div class="mock-row">
+        <div class="mock-avatar"></div>
+        <div class="mock-body">
+          <div class="mock-name">@taro_view</div>
+          <div class="mock-text">wwwwww</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Features</div>
+      <h2>Translation, without losing the vibe.</h2>
+      <p class="section-desc">Quietly adds a translation exactly where it's needed — nothing more.</p>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">💬</div>
+        <h3>Auto-detects &amp; translates</h3>
+        <p>Watches new comments as they arrive and adds a translation only when the language differs from yours.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔀</div>
+        <h3>Three translation engines</h3>
+        <p>Choose from free Google Translate, high-accuracy DeepL, or OpenRouter with your model of choice.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🎮</div>
+        <h3>Skips slang intelligently</h3>
+        <p>Skips laughter and gaming slang like "wwww" or "gg" that don't need translating.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">✏️</div>
+        <h3>Customizable skip list</h3>
+        <p>Add community-specific slang of your own from the options page.</p>
+      </div>
+      
+      <div class="feature">
+        <div class="feature-icon">🌐</div>
+        <h3>UI in 12 languages</h3>
+        <p>The popup and options page automatically match your browser's language.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">How it works</div>
+      <h2>Get started!</h2>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Load it</h3>
+        <p>Turn on Developer mode at <code style="font-family:var(--font-mono)">chrome://extensions</code> and select the folder.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Pick your language</h3>
+        <p>Click the extension icon and choose the language to translate into.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Open a stream</h3>
+        <p>Open a YouTube Live chat panel and translations start appearing automatically.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="engines">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Translation engines</div>
+      <h2>Bring your own engine.</h2>
+    </div>
+
+    <div class="engines">
+      <div class="engine-card recommended">
+        <div class="engine-top">
+          <span class="engine-name">Google Translate</span>
+          <span class="engine-tag">Default</span>
+        </div>
+        <p class="engine-desc">No API key, no cost. The easiest way to try it out.</p>
+      </div>
+      <div class="engine-card">
+        <div class="engine-top"><span class="engine-name">DeepL</span></div>
+        <p class="engine-desc">API key required (free tier available). For when accuracy matters most.</p>
+      </div>
+      <div class="engine-card">
+        <div class="engine-top"><span class="engine-name">OpenRouter</span></div>
+        <p class="engine-desc">API key required. BYOK-style — specify any model you like.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="brand">
+        <img class="brand-mark" src="./assets/icon.png" alt="" width="26" height="26" />
+        <span>YT Chat Translator</span>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/xjgzm/yt-chat-translator" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://xjgzm.github.io/pages/yt-chat-translator/privacy/privacy-en.html">Privacy Policy</a>
+      </div>
+    </div>
+    <div class="footer-fine">
+      <span>Released under the MIT license. Built with the assistance of Anthropic's Claude.</span>
+      <span>An unofficial project, not affiliated with Google, DeepL, or OpenRouter.</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
