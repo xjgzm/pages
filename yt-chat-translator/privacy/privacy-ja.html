@@ -1,1 +1,239 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>プライバシーポリシー - YouTube Live Chat Translator</title>
+<style>
+  :root {
+    --bg-color: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --primary: #ef4444;
+    --border-color: #e2e8f0;
+    --code-bg: #f1f5f9;
+    --table-header-bg: #f8fafc;
+    --link-color: #2563eb;
+    --radius: 12px;
+  }
 
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #f87171;
+      --border-color: #334155;
+      --code-bg: #0f172a;
+      --table-header-bg: #0f172a;
+      --link-color: #60a5fa;
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans JP", sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.75;
+    margin: 0;
+    padding: 40px 16px;
+  }
+
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    padding: 40px;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--border-color);
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+
+  .updated {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 32px;
+  }
+
+  h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 36px;
+    margin-bottom: 16px;
+    padding-left: 12px;
+    border-left: 4px solid var(--primary);
+    display: flex;
+    align-items: center;
+  }
+
+  p, li {
+    font-size: 15px;
+    color: var(--text-main);
+  }
+
+  ul {
+    padding-left: 20px;
+    margin: 12px 0;
+  }
+
+  li {
+    margin-bottom: 6px;
+  }
+
+  .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin: 16px 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 14px;
+    text-align: left;
+  }
+
+  th, td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  th {
+    background-color: var(--table-header-bg);
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  code {
+    background-color: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    border: 1px solid var(--border-color);
+  }
+
+  a {
+    color: var(--link-color);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  a:hover {
+    text-decoration: underline;
+    opacity: 0.85;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>プライバシーポリシー</h1>
+  <p class="updated">最終更新日: 2026年8月12日</p>
+
+  <p>
+    本ポリシーは、Chrome拡張機能「<strong>YouTube Live Chat Translator</strong>」(以下「本拡張機能」)が、
+    どのような情報を扱い、どこに送信するかについて説明するものです。
+  </p>
+
+  <h2>本拡張機能が行うこと</h2>
+  <p>
+    本拡張機能は、YouTube Liveのライブチャット画面(<code>youtube.com/live_chat</code> および
+    <code>youtube.com/live_chat_replay</code>)上に表示されるコメントのテキストを読み取り、
+    設定された翻訳エンジンに送信して翻訳結果を取得し、元のコメントの下に表示します。
+  </p>
+
+  <h2>収集・送信する情報</h2>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>データ</th><th>内容</th><th>送信先</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>チャットのコメントテキスト</td>
+          <td>YouTube Liveのチャット欄に表示されているコメント本文(絵文字・スタンプ等は除く)</td>
+          <td>ユーザーが選択した翻訳エンジン(下記参照)</td>
+        </tr>
+        <tr>
+          <td>拡張機能の設定</td>
+          <td>有効/無効、翻訳先言語、選択中の翻訳エンジン、(入力した場合)APIキー</td>
+          <td>ブラウザの <code>chrome.storage.sync</code> にのみ保存。Googleアカウント経由でのブラウザ間同期以外、外部には送信されません</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    本拡張機能の開発者は、上記のいずれのデータも収集・保存・閲覧しません。
+    本拡張機能はサーバーを持たず、開発者が管理する場所にデータが送信されることはありません。
+  </p>
+
+  <h2>翻訳エンジンについて</h2>
+  <p>
+    ユーザーはオプション画面で以下のいずれかの翻訳エンジンを選択できます。選択したエンジンにのみ、
+    翻訳対象のコメントテキストが送信されます。
+  </p>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>プロバイダー</th><th>APIキー</th><th>送信先ドメイン</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Google翻訳(デフォルト)</td><td>不要</td><td><code>translate.googleapis.com</code></td></tr>
+        <tr><td>DeepL</td><td>ユーザーが自分で取得・入力</td><td><code>api.deepl.com</code> / <code>api-free.deepl.com</code></td></tr>
+        <tr><td>OpenRouter</td><td>ユーザーが自分で取得・入力</td><td><code>openrouter.ai</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    これらのサービスへのデータ送信については、各サービス提供元(Google、DeepL、OpenRouter)のプライバシーポリシーが適用されます。
+    APIキーを使用する場合、そのキーは対象サービスへの認証にのみ使用され、本拡張機能の開発者には一切共有されません。
+  </p>
+
+  <h2>収集しない情報</h2>
+  <ul>
+    <li>氏名・メールアドレスなどの個人を特定できる情報</li>
+    <li>閲覧履歴・検索履歴</li>
+    <li>YouTubeアカウント情報、ログイン情報</li>
+    <li>広告目的でのトラッキングやフィンガープリンティング</li>
+  </ul>
+  <p>本拡張機能にはアナリティクス(利用状況解析)機能は組み込まれていません。</p>
+
+  <h2>データの保存期間</h2>
+  <p>
+    翻訳結果はブラウザのタブを開いている間のみメモリ上にキャッシュされ、タブを閉じるかページを離れると破棄されます。
+    設定(有効/無効、言語、APIキー等)は、ユーザーが変更するかブラウザの拡張機能データを削除するまで
+    <code>chrome.storage.sync</code> に保存されます。
+  </p>
+
+  <h2>お問い合わせ</h2>
+  <p>
+    本ポリシーに関するご質問は、GitHubリポジトリの
+    <a href="https://github.com/xjgzm/yt-chat-translator/issues" target="_blank" rel="noopener noreferrer">Issues</a> よりお願いいたします。
+  </p>
+</div>
+
+</body>
+</html>
